@@ -1,7 +1,12 @@
+install.packages("xgboost")
+library(dplyr)
+library(plyr)
 library(readr)
+install.packages("caret")
+library(caret)
+library(xgboost)
 test_V2 <- read_csv("test_V2.csv")
 View(test_V2)
-library(readr)
 train_V2 <- read_csv("train_V2.csv")
 View(train_V2)
 load("~/pubg/current.RData")
@@ -88,5 +93,30 @@ knn.20=knn.reg(train=smallerTrainDataSubset,test=smallerTestDataSubset,y=smallTr
 knn.30=knn.reg(train=smallerTrainDataSubset,test=smallerTestDataSubset,y=smallTrainLable,k=30)
 knn.70=knn.reg(train=smallerTrainDataSubset,test=smallerTestDataSubset,y=smallTrainLable,k=70)
 ggplot(data=smallerTestDataSubset,aes(x=knn.5$pred,y=winPlacePerc)+geom_hex(binwidth=c(.25,.25))
+trainAdded <- subset( trainAdded, select = -c(groupId, Id, matchId, matchType ) )
+X <- subset( trainAdded, select = -c(winPlacePerc))
+y <- subset( trainAdded, select = c(winPlacePerc))
+set.seed(123)
+trainIndex <- createDataPartition(y = 1:length(X), p=0.80, list=FALSE)
+X_test <- X[trainIndex, ]; y_test = y[trainIndex]
+X_train <- X[-trainIndex, ]; y_train = y[-trainIndex]
+matrix_train_x <- as.matrix(X_train)
+train_model <- xgboost(dtrain, objective = 'reg:linear', colsample_bytree = 0.2, learning_rate = 0.25, max_depth = 7, alpha = 0.4, nrounds = 32)
+testAdded <- subset( testAdded, select = -c(groupId, Id, matchId, matchType ) )
+test_matrix <- as.matrix(testAdded)
+final <- as.data.frame(predict(train_model,test_matrix))
+final <- cbind(final, test_V2$Id)
+sampleSize = floor(.8*nrow(trainAdded))
+set.seed(123)
+trainModel=sample(seq_len(nrow(trainAdded)),size=sampleSize)
+trainData=trainAdded[trainModel,]
+testData=trainAdded[-trainModel,]
+testData2=trainAdded[-trainModel1,]
+testData <- subset(testData, select = -c(winPlacePerc))
+testDataMatrix <- as.matrix(testData)
+testData$linPred=predict(train_model,testDataMatrix)
+library(hexbin)
+ggplot(testData,aes(x=testData2$winPlacePerc,y=linPred))+geom_hex(binwidth=c(.025,.025))+labs(y="XGBoost Prediction", x = "Training set winPlacePerc") 
        
+
        
