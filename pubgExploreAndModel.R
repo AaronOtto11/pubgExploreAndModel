@@ -92,7 +92,7 @@ knn.5=knn.reg(train=smallerTrainDataSubset,test=smallerTestDataSubset,y=smallTra
 knn.20=knn.reg(train=smallerTrainDataSubset,test=smallerTestDataSubset,y=smallTrainLable,k=20)
 knn.30=knn.reg(train=smallerTrainDataSubset,test=smallerTestDataSubset,y=smallTrainLable,k=30)
 knn.70=knn.reg(train=smallerTrainDataSubset,test=smallerTestDataSubset,y=smallTrainLable,k=70)
-ggplot(data=smallerTestDataSubset,aes(x=knn.5$pred,y=winPlacePerc)+geom_hex(binwidth=c(.25,.25))
+ggplot(data=smallerTestDataSubset,aes(x=knn.5$pred,y=winPlacePerc)+geom_hex(binwidth=c(.025,.025))
 trainAdded <- subset( trainAdded, select = -c(groupId, Id, matchId, matchType ) )
 X <- subset( trainAdded, select = -c(winPlacePerc))
 y <- subset( trainAdded, select = c(winPlacePerc))
